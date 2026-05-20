@@ -66,7 +66,7 @@ with tab1:
     Esta pestaña ayuda a comprender el uso de la herramienta. Las siguientes pestañas contienen la animación interactiva fluida.
      
     ### ¿Cómo usar los controles de movimiento?
-    * Al abrir cualquier pestaña de análisis, aparecerá un botón de **"▶️ Play"** o **"▶️ Iniciar Animación"** en la gráfica.
+    * Al abrir cualquier pestaña de análisis, aparecerá un botón de  o **"▶️ Iniciar Animación"** en la gráfica.
     * Presione el botón para iniciar el movimiento armónico continuo de las ondas en el navegador.
     * Al modificar cualquier parámetro en la barra lateral, la animación se recalculará instantáneamente.
     """)
@@ -86,7 +86,7 @@ with tab2:
         layout=go.Layout(
             xaxis_title="Posición x (m)", yaxis_title="Desplazamiento y (m)",
             yaxis=dict(range=[-(A1 + 0.5), (A1 + 0.5)], zeroline=True), template="plotly_dark",
-            updatemenus=[dict(type="buttons", showactive=False, buttons=[dict(label="▶️ Play", method="animate", args=[None, {"frame": {"duration": 40, "redraw": True}, "fromcurrent": True}])])]
+            updatemenus=[dict(type="buttons", showactive=False, buttons=[dict(label=" Play", method="animate", args=[None, {"frame": {"duration": 40, "redraw": True}, "fromcurrent": True}])])]
         ),
         frames=[go.Frame(data=[go.Scatter(x=x_1d, y=A1 * np.sin(k1 * x_1d + signo1 * omega1 * t + fase1))]) for t in tiempos]
     )
@@ -116,7 +116,7 @@ with tab3:
         layout=go.Layout(
             xaxis_title="Posición x (m)", yaxis_title="Desplazamiento y (m)",
             yaxis=dict(range=[-(max_amp + 0.5), (max_amp + 0.5)], zeroline=True), template="plotly_dark",
-            updatemenus=[dict(type="buttons", showactive=False, buttons=[dict(label="▶️ Play", method="animate", args=[None, {"frame": {"duration": 40, "redraw": True}, "fromcurrent": True}])])]
+            updatemenus=[dict(type="buttons", showactive=False, buttons=[dict(label=" Play", method="animate", args=[None, {"frame": {"duration": 40, "redraw": True}, "fromcurrent": True}])])]
         ),
         frames=frames_superposicion
     )
@@ -166,13 +166,13 @@ with tab4:
                     type="buttons",
                     showactive=False,
                     y=0.1, x=0.05,
-                    buttons=[dict(label="▶️ Ver Expansión de Onda (Play)", method="animate", args=[None, {"frame": {"duration": 60, "redraw": True}, "fromcurrent": False}])])
+                    buttons=[dict(label=" Ver Expansión de Onda (Play)", method="animate", args=[None, {"frame": {"duration": 60, "redraw": True}, "fromcurrent": False}])])
                 ]
             ),
             frames=frames_3d
         )
         st.plotly_chart(fig3, use_container_width=True)
-        st.success("¡Impacto generado con éxito! Haz clic en el botón '▶️ Ver Expansión de Onda (Play)' que apareció abajo a la izquierda de la gráfica para ver cómo se propaga el agua.")
+        st.success("¡Impacto generado con éxito! Haz clic en el botón ' Ver Expansión de Onda (Play)' que apareció abajo a la izquierda de la gráfica para ver cómo se propaga el agua.")
     else:
         # Gráfica fija que muestra el agua plana antes del impacto
         fig3 = go.Figure(
