@@ -3,14 +3,14 @@ import numpy as np
 import plotly.graph_objects as go
 
 # 1. CONFIGURACIÓN PREMIUM
-st.set_page_config(page_title="Simulador de Ondas", page_icon="🌊", layout="wide")
+st.set_page_config(page_title="Simulador de Ondas", layout="wide")
 
-st.title("🌊 Análisis de Fenómenos Ondulatorios")
+st.title(" Análisis de Fenómenos Ondulatorios")
 st.markdown("---")
 
 # 2. PANEL LATERAL PROFESIONAL
-st.sidebar.header("⚙️ Parámetros de Simulación")
-t = st.sidebar.number_input("⏱️ Tiempo (t) [s]", value=0.0, step=0.1, format="%.2f")
+st.sidebar.header("Parámetros de Simulación")
+t = st.sidebar.number_input(" Tiempo (t) [s]", value=0.0, step=0.1, format="%.2f")
 
 with st.sidebar.expander("Parámetros: Onda 1", expanded=True):
     A1 = st.number_input("Amplitud (A1) [m]", value=1.0, step=0.1, format="%.2f")
@@ -42,9 +42,9 @@ y_res = y1 + y2
 
 # 4. PESTAÑAS SEPARADAS (Guía vs. Análisis Técnico)
 tab1, tab2, tab3, tab4 = st.tabs([
-    "📖 Guía de Uso",
-    "📊 Análisis Individual (1D)", 
-    "🔀 Interferencia y Superposición", 
+    " Guía de Uso",
+    " Análisis Individual (1D)", 
+    " Interferencia y Superposición", 
     "💧 Simulación 2D (Cubeta 3D)"
 ])
 
