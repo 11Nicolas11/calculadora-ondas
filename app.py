@@ -25,7 +25,7 @@ with st.sidebar.expander("Parámetros: Onda 2", expanded=False):
     fase2 = st.number_input("Fase (ϕ2) [rad]", value=3.14, step=0.1, format="%.2f")
     dir2 = st.selectbox("Dirección Onda 2", ["-x (Hacia la izquierda)", "+x (Hacia la derecha)"])
 
-# 3. CÁLCULOS FÍSICOS RIGUROSOS Y GENERACIÓN DE TIMELAPSE (ANIMACIÓN NATIVA)
+# 3. CÁLCULOS FÍSICOS RIGUROSOS Y GENERACIÓN DE TIMELAPSE
 k1 = (2 * np.pi) / lam1
 omega1 = 2 * np.pi * f1
 signo1 = -1 if "+x" in dir1 else 1
@@ -34,9 +34,9 @@ k2 = (2 * np.pi) / lam2
 omega2 = 2 * np.pi * f2
 signo2 = -1 if "+x" in dir2 else 1
 
-x_1d = np.linspace(0, 20, 500) 
-x_2d = np.linspace(-10, 10, 60) # Resolución óptima para rendimiento fluido
-y_2d = np.linspace(-10, 10, 60)
+x_1d = np.linspace(0, 20, 400) 
+x_2d = np.linspace(-10, 10, 50)  # Resolución equilibrada para renderizado fluido
+y_2d = np.linspace(-10, 10, 50)
 X, Y = np.meshgrid(x_2d, y_2d)
 
 foco1_x, foco1_y = -3, 0
@@ -44,7 +44,7 @@ foco2_x, foco2_y = 3, 0
 R1 = np.sqrt((X - foco1_x)**2 + (Y - foco1_y)**2)
 R2 = np.sqrt((X - foco2_x)**2 + (Y - foco2_y)**2)
 
-# Definimos los pasos de tiempo de un ciclo completo de animación (0 a 1 segundo, 24 fotogramas)
+# Generamos 24 fotogramas para simular un ciclo completo de tiempo
 tiempos = np.linspace(0, 1.0, 24)
 
 # 4. PESTAÑAS SEPARADAS
@@ -61,9 +61,9 @@ with tab1:
     Esta pestaña ayuda a comprender el uso de la herramienta. Las siguientes pestañas contienen la animación interactiva fluida.
     
     ### ¿Cómo usar los controles de movimiento?
-    * Al abrir cualquier gráfica, aparecerá un botón de **"Play" (Reproducir)** justo debajo de ella.
-    * Presione **Play** para iniciar el movimiento continuo y armónico de las ondas.
-    * Use la barra de desplazamiento temporal para congelar la onda en cualquier instante exacto si lo requiere para su explicación.
+    * Al abrir cualquier pestaña de análisis, aparecerá un botón de **"▶️ Play"** o **"▶️ Iniciar Animación"** en la gráfica.
+    * Presione el botón para iniciar el movimiento armónico continuo de las ondas en el navegador.
+    * Al modificar cualquier parámetro en la barra lateral, la animación se recalculará instantáneamente.
     """)
 
 with tab2:
@@ -76,13 +76,12 @@ with tab2:
     
     st.latex(rf"y_1(x,t) = {A1:.2f} \sin({k1:.2f}x {'-' if signo1 == -1 else '+'} {omega1:.2f}t + {fase1:.2f})")
     
-    # Construcción de animación nativa para Gráfica 1D
     fig1 = go.Figure(
         data=[go.Scatter(x=x_1d, y=A1 * np.sin(k1 * x_1d + signo1 * omega1 * tiempos[0] + fase1), mode='lines', name='Onda 1', line=dict(color='#00F0FF', width=3), fill='tozeroy', fillcolor='rgba(0, 240, 255, 0.1)')],
         layout=go.Layout(
             xaxis_title="Posición x (m)", yaxis_title="Desplazamiento y (m)",
-            yaxis=dict(range=[-10.5, 10.5], zeroline=True), template="plotly_dark",
-            updatemenus=[dict(type="buttons", buttons=[dict(label="▶️ Play", method="animate", args=[None, {"frame": {"duration": 40, "redraw": True}, "fromcurrent": True}])])]
+            yaxis=dict(range=[-(A1 + 0.5), (A1 + 0.5)], zeroline=True), template="plotly_dark",
+            updatemenus=[dict(type="buttons", showactive=False, buttons=[dict(label="▶️ Play", method="animate", args=[None, {"frame": {"duration": 40, "redraw": True}, "fromcurrent": True}])])]
         ),
         frames=[go.Frame(data=[go.Scatter(x=x_1d, y=A1 * np.sin(k1 * x_1d + signo1 * omega1 * t + fase1))]) for t in tiempos]
     )
@@ -92,7 +91,6 @@ with tab3:
     st.subheader("Principio de Superposición 1D")
     st.latex(r"y_{res}(x,t) = y_1(x,t) + y_2(x,t)")
     
-    # Frames dinámicos combinados
     frames_superposicion = []
     for t in tiempos:
         y1_t = A1 * np.sin(k1 * x_1d + signo1 * omega1 * t + fase1)
@@ -103,6 +101,7 @@ with tab3:
             go.Scatter(x=x_1d, y=y1_t + y2_t)
         ]))
 
+    max_amp = A1 + A2
     fig2 = go.Figure(
         data=[
             go.Scatter(x=x_1d, y=A1 * np.sin(k1 * x_1d + signo1 * omega1 * tiempos[0] + fase1), mode='lines', name='Onda 1', line=dict(color='#00F0FF', width=1, dash='dot')),
@@ -111,8 +110,8 @@ with tab3:
         ],
         layout=go.Layout(
             xaxis_title="Posición x (m)", yaxis_title="Desplazamiento y (m)",
-            yaxis=dict(range=[-21, 21], zeroline=True), template="plotly_dark",
-            updatemenus=[dict(type="buttons", buttons=[dict(label="▶️ Play", method="animate", args=[None, {"frame": {"duration": 40, "redraw": True}, "fromcurrent": True}])])]
+            yaxis=dict(range=[-(max_amp + 0.5), (max_amp + 0.5)], zeroline=True), template="plotly_dark",
+            updatemenus=[dict(type="buttons", showactive=False, buttons=[dict(label="▶️ Play", method="animate", args=[None, {"frame": {"duration": 40, "redraw": True}, "fromcurrent": True}])])]
         ),
         frames=frames_superposicion
     )
@@ -122,23 +121,33 @@ with tab4:
     st.subheader("Interferencia Bidimensional (Frentes de Onda Circulares)")
     st.latex(r"z(x,y,t) = A_1 \sin(k_1 r_1 - \omega_1 t + \phi_1) + A_2 \sin(k_2 r_2 - \omega_2 t + \phi_2)")
     
-    # Frames dinámicos para la superficie 3D (Efecto ondulatorio adelante/atrás)
     frames_3d = []
     for t in tiempos:
         Z1_t = A1 * np.sin(k1 * R1 - omega1 * t + fase1)
         Z2_t = A2 * np.sin(k2 * R2 - omega2 * t + fase2)
-        frames_3d.append(go.Frame(data=[go.Surface(z=Z1_t + Z2_t, x=X, y=Y)]))
+        frames_3d.append(go.Frame(data=[go.Surface(z=Z1_t + Z2_t)]))
         
     Z1_init = A1 * np.sin(k1 * R1 - omega1 * tiempos[0] + fase1)
     Z2_init = A2 * np.sin(k2 * R2 - omega2 * tiempos[0] + fase2)
+    max_z = A1 + A2
     
     fig3 = go.Figure(
         data=[go.Surface(z=Z1_init + Z2_init, x=X, y=Y, colorscale='Blues', opacity=0.9)],
         layout=go.Layout(
             template="plotly_dark",
-            scene=dict(xaxis_title="Eje X (m)", yaxis_title="Eje Y (m)", zaxis_title="Amplitud Z (m)", zaxis=dict(range=[-4, 4])),
+            scene=dict(
+                xaxis=dict(title="Eje X (m)"),
+                yaxis=dict(title="Eje Y (m)"),
+                zaxis=dict(title="Amplitud Z (m)", range=[-(max_z + 0.2), (max_z + 0.2)])
+            ),
             margin=dict(l=0, r=0, b=0, t=40),
-            updatemenus=[dict(type="buttons", padding=dict(t=60), buttons=[dict(label="▶️ Iniciar Animación 3D", method="animate", args=[None, {"frame": {"duration": 50, "redraw": True}, "fromcurrent": True, "mode": "immediate"}])])]
+            updatemenus=[dict(
+                type="buttons",
+                showactive=False,
+                y=0.1,
+                x=0.1,
+                buttons=[dict(label="▶️ Iniciar Animación 3D", method="animate", args=[None, {"frame": {"duration": 50, "redraw": True}, "fromcurrent": True}])]
+            )]
         ),
         frames=frames_3d
     )
