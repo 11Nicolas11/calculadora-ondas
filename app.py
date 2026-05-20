@@ -1,16 +1,38 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+import time
 
 # 1. CONFIGURACIÓN PREMIUM
 st.set_page_config(page_title="Simulador de Ondas", layout="wide")
 
-st.title(" Análisis de Fenómenos Ondulatorios")
+st.title("Análisis de Fenómenos Ondulatorios")
 st.markdown("---")
 
 # 2. PANEL LATERAL PROFESIONAL
 st.sidebar.header("Parámetros de Simulación")
-t = st.sidebar.number_input(" Tiempo (t) [s]", value=0.0, step=0.1, format="%.2f")
+
+# --- NUEVA SECCIÓN DE ANIMACIÓN ---
+st.sidebar.subheader("Controles de Animación")
+animar = st.sidebar.toggle("▶️ Iniciar Movimiento", value=False)
+velocidad_animacion = st.sidebar.slider("Velocidad", 0.01, 0.1, 0.03, step=0.01)
+
+# El tiempo base que el usuario puede setear manualmente
+t_manual = st.sidebar.number_input("Tiempo base (t) [s]", value=0.0, step=0.1, format="%.2f")
+
+# Gestión del tiempo dinámico para la animación
+if animar:
+    if "tiempo_dinamico" not in st.session_state:
+        st.session_state.tiempo_dinamico = t_manual
+    else:
+        st.session_state.tiempo_dinamico += velocidad_animacion
+    t = st.session_state.tiempo_dinamico
+else:
+    # Si se apaga la animación, vuelve al control manual o se congela en el punto actual
+    if "tiempo_dinamico" in st.session_state:
+        del st.session_state.tiempo_dinamico
+    t = t_manual
+# ----------------------------------
 
 with st.sidebar.expander("Parámetros: Onda 1", expanded=True):
     A1 = st.number_input("Amplitud (A1) [m]", value=1.0, step=0.1, format="%.2f")
@@ -42,9 +64,9 @@ y_res = y1 + y2
 
 # 4. PESTAÑAS SEPARADAS (Guía vs. Análisis Técnico)
 tab1, tab2, tab3, tab4 = st.tabs([
-    " Guía de Uso",
-    " Análisis Individual (1D)", 
-    " Interferencia y Superposición", 
+    "Guía de Uso",
+    "Análisis Individual (1D)", 
+    "Interferencia y Superposición", 
     "💧 Simulación 2D (Cubeta 3D)"
 ])
 
@@ -55,16 +77,12 @@ with tab1:
     
     ### ¿Cómo interactuar con el simulador?
     Utilice el panel lateral izquierdo para ingresar las variables de estado.
-    * **Tiempo (t):** Avance este valor cronológico para simular la propagación de la onda a través del medio.
+    * **Iniciar Movimiento:** Activa el avance cronológico automático para ver las ondas propagarse.
+    * **Tiempo (t):** Modifica manualmente o visualiza el avance del tiempo en segundos.
     * **Amplitud (A):** Modifica el desplazamiento máximo desde el punto de equilibrio.
     * **Frecuencia (f):** Cambia el número de ciclos que ocurren en un segundo.
     * **Longitud de onda (λ):** Ajusta la distancia espacial entre dos crestas consecutivas en el medio.
     * **Dirección:** Define si la perturbación viaja hacia la parte positiva ($+x$) o negativa ($-x$) del eje.
-    
-    ### Estructura del Análisis:
-    1.  **Análisis Individual (1D):** Evalúa el comportamiento de la Onda 1 aislada, calculando el número de onda ($k$), frecuencia angular ($\omega$), velocidad ($v$) y período ($T$).
-    2.  **Interferencia y Superposición:** Representa gráficamente la suma algebraica de la Onda 1 y la Onda 2. Herramienta principal para estudiar interferencias constructivas, destructivas y la formación de ondas estacionarias.
-    3.  **Simulación 2D:** Proyecta el principio de superposición en un plano bidimensional, modelando la interferencia de ondas circulares emitidas por dos focos puntuales.
     """)
 
 with tab2:
@@ -75,7 +93,6 @@ with tab2:
     col3.metric("Velocidad de propagación (v)", f"{(lam1*f1):.2f} m/s")
     col4.metric("Período (T)", f"{(1/f1):.2f} s")
     
-    # Renderizado de la ecuación formal
     st.latex(rf"y_1(x,t) = {A1:.2f} \sin({k1:.2f}x {'-' if signo1 == -1 else '+'} {omega1:.2f}t + {fase1:.2f})")
     
     fig1 = go.Figure()
@@ -120,3 +137,8 @@ with tab4:
         margin=dict(l=0, r=0, b=0, t=40)
     )
     st.plotly_chart(fig3, use_container_width=True)
+
+# --- EJECUTAR EL RE-RENDERIZADO SI LA ANIMACIÓN ESTÁ ACTIVA ---
+if animar:
+    time.sleep(0.01)  # Pequeña pausa para no saturar la CPU
+    st.rerun()
